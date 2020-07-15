@@ -1,0 +1,6 @@
+git_url("https://fburel@bitbucket.org/f10net/opencamera-certificat.git")
+
+storage_mode("git")
+
+type("appstore") # The default type, can be: appstore, adhoc, enterprise or development
+

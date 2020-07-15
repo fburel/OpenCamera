@@ -1,0 +1,71 @@
+
+update_fastlane
+
+default_platform(:ios)
+
+platform :ios do
+ 
+  fastlane_require 'cocoapods'
+
+  before_all do
+      ensure_git_status_clean
+      cocoapods
+  end
+
+
+  desc "Bumps the patch version"  
+  lane :patch do
+      update(type: "patch")
+  end
+
+  desc "Bumps the minor version"  
+  lane :minor do
+      update(type: "minor")
+  end  
+
+  desc "Bumps the major version"  
+  lane :major do
+      update(type: "major")
+  end  	
+
+  desc "Push a new beta build to TestFlight"
+  lane :beta do
+    ensure_git_branch(
+      branch: 'master'
+    )
+    match
+    build_number = number_of_commits(all: true)
+    increment_build_number(build_number: build_number)
+    build_app(workspace: "OpenCamera.xcworkspace", scheme: "OpenCamera")
+    upload_to_testflight(
+      skip_submission: true
+    )
+    add_git_tag(tag: "testflight-#{build_number}")
+    push_to_git_remote()
+  end
+
+  private_lane :update do |options|
+      scan(
+        scheme: $scheme,
+	output_directory: "../Reports/",
+	skip_slack: true
+      )
+      pod_lib_lint(
+          allow_warnings: true
+      )
+
+      type = options[:type]
+	
+      if type == "none" 
+          UI.message("No version type found")
+      else
+          version = version_bump_podspec(path: $podspec, bump_type: type)
+          git_commit(path: $podspec, message: "Updating podspec")
+          increment_version_number( bump_type: type, version_number: version, xcodeproj: $project )
+	  commit_version_bump(
+            message: "Version Bump",# create a commit with a custom message
+            xcodeproj: $project
+          )
+      end
+    end
+end
