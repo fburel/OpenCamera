@@ -7,6 +7,9 @@
 //
 
 import UIKit
+import AppCenter
+import AppCenterAnalytics
+import AppCenterCrashes
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, UIWindowSceneDelegate {
@@ -19,6 +22,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UIWindowSceneDelegate {
     
 //        if #available(iOS 13.0, *) { } else {
             self.window = UIWindow(frame: UIScreen.main.bounds)
+            initCrashAnalytics();
             commonStart()
 //        }
         return true
@@ -33,6 +37,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UIWindowSceneDelegate {
 //                   commonStart()
 //               }
 //    }
+    
+    func initCrashAnalytics(){
+        if let secret = ProcessInfo.processInfo.environment["APP_CENTER_SECRET"] {
+            print("secret id \(secret)");
+            MSAppCenter.start(secret, withServices: [MSAnalytics.self, MSCrashes.self]);
+        }
+    }
     
     func commonStart() {
         let mainViewController = ViewController()
