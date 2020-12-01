@@ -20,28 +20,30 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UIWindowSceneDelegate {
         // Override point for customization after application launch.
         
     
-//        if #available(iOS 13.0, *) { } else {
-            self.window = UIWindow(frame: UIScreen.main.bounds)
-            initCrashAnalytics();
-            commonStart()
-//        }
+        self.window = UIWindow(frame: UIScreen.main.bounds)
+        initCrashAnalytics();
+        commonStart()
+        
         return true
     }
 
-//    @available(iOS 13.0, *)
-//    func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-//        
-//        guard let _ = (scene as? UIWindowScene) else { return }
-//               if let windowScene = scene as? UIWindowScene {
-//                   self.window = UIWindow(windowScene: windowScene)
-//                   commonStart()
-//               }
-//    }
+    @available(iOS 13.0, *)
+    func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
+        
+        guard let _ = (scene as? UIWindowScene) else { return }
+               if let windowScene = scene as? UIWindowScene {
+                   self.window = UIWindow(windowScene: windowScene)
+                   commonStart()
+               }
+    }
     
     func initCrashAnalytics(){
         if let secret = ProcessInfo.processInfo.environment["APP_CENTER_SECRET"] {
             print("secret id \(secret)");
-            MSAppCenter.start(secret, withServices: [MSAnalytics.self, MSCrashes.self]);
+            AppCenter.start(withAppSecret: "c496a455-116c-44ad-8b16-255a43544097", services:[
+              Analytics.self,
+              Crashes.self
+            ])
         }
     }
     
