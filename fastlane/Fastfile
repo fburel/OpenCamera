@@ -14,7 +14,7 @@ platform :ios do
       ensure_git_status_clean
       cocoapods
       match
-      build_number = number_of_commits(all: true)
+      
   end
 
 
@@ -36,25 +36,39 @@ platform :ios do
   private_lane :update do |options|
 
     type = options[:type]
-	    
+	  
+    build_number = number_of_commits(all: true)
+
+    increment_build_number(build_number: build_number)
+
     increment_version_number(
       bump_type: type 
     )
     
     build_app(workspace: "OpenCamera.xcworkspace", scheme: "OpenCamera")
     
+    appcenter_upload(
+        api_token: "41fcdc7947881079dcedb85573ca0e8332c15c4c",
+        owner_name: "florian.burel.com",
+        app_name: "OpenCamera",
+        upload_dsym_only: true
+    )
+
     upload_to_testflight(
-      skip_submission: true
+      username: "fburel@worldsat.fr",
+      beta_app_description: "Full screen camera view without UI",
+      beta_app_feedback_email: "fburel@carrera.fr",
+      first_name: "Florian",
+      last_name: "Burel",
+      "email": "fburel@carrera.fr",
+      demo_account_required: false,
+      reject_build_waiting_for_review: true
     )
     
-    commit_version_bump(
-            message: "Version Bump",# create a commit with a custom message
-            xcodeproj: $project
-          )
+    commit_version_bump
 
-    add_git_tag(tag: "testflight-#{build_number}")
-
-    push_to_git_remote()
+    add_git_tag(tag: lane_context[SharedValues::VERSION_NUMBER])
 
     end
+
 end
